@@ -1,4 +1,4 @@
-License place experiments
+License place experiments -- 03.2025
 
 This repository contains bits of code experimenting with computer vision concepts. The main objective is modest, and remains to get acquainted with the torch syntax, some image segmentation methods from a practical standpoint. The far-reaching goal of the project is to try and read license plates on pictures of vehicles, using an algorithm built "from the ground up" -- in the sense that we want to avoid the use of large, pre-trained networks. 
 
