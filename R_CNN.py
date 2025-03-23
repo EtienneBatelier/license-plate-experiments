@@ -1,7 +1,6 @@
 import numpy as np
 from PIL import Image
 import torch
-from sympy.physics.quantum.gate import normalized
 from torchvision.transforms import transforms
 import os
 
@@ -32,7 +31,7 @@ def size_filter(bboxes):
     while i < len(bboxes):
         bbox = bboxes[i]
         area = (bbox[2] - bbox[0])*(bbox[3] - bbox[1])
-        if area < 200 or area > 16000:
+        if area < 100 or area > 18000:
             bboxes.pop(i)
         else:
             i += 1
@@ -70,6 +69,7 @@ def ROI_estimations(PIL_image, bboxes, CNN_input_size = (30, 40),
 
 def isolate_matches(bboxes, estimations, prob_threshold = None):
     matches = []
+    if len(bboxes) == 0: return matches
     if prob_threshold is None:
         prob_threshold = np.quantile([x for xs in estimations for x in xs], 0.97)
     for j, bbox in enumerate(bboxes):
@@ -139,7 +139,9 @@ def grid_search_param(dataset_file_path, k_range,
                                          sigma_range,
                                          min_size_range,
                                          iou_threshold_range,
-                                         verbose = True, visualize = False):
+                                         verbose = True,
+                                         visualize = False,
+                                         save_to_file = False):
     number_combinations = len(k_range)*len(sigma_range)*len(min_size_range)*len(iou_threshold_range)
     combination = 1
     param_results = {}
@@ -157,32 +159,27 @@ def grid_search_param(dataset_file_path, k_range,
                         guess = R_CNN(PIL_image, k_, sigma_, min_size_, iou_threshold_, verbose, visualize)
                         print(file_name[:-4], guess)
                         results.append([file_name[:-4], guess])
+                        print("\n")
                     param_results[(k_,
                                   sigma_,
                                   min_size_,
                                   iou_threshold_)] = results
                     print("\n")
-                    print(" ")
                     combination += 1
+    if save_to_file: np.save('./result_metrics/grid_search_results.npy', param_results)
     return param_results
 
 def results_to_score(param_results):
     param_scores = {}
-    for params, results in param_results:
+    for param, results in param_results.items():
         normalized_scores = []
         for result in results:
             score = float(Levenshtein_dist(result[0], result[1]))
             normalized_scores.append(score/len(result[0]))
-        param_scores[params] = np.mean(normalized_scores)
+        param_scores[param] = np.mean(normalized_scores)
     return param_scores
 
-def test_R_CNN(file_path, verbose = True, visualize = True):
-    # Algorithm parameters
-    k = 500
-    sigma = 0.8
-    min_size = 50
-    iou_threshold = 0.15
-
+def test_R_CNN(file_path, k, sigma, min_size, iou_threshold, verbose = True, visualize = True):
     # Open an image with PIL
     PIL_image = Image.open(file_path)
 
@@ -191,11 +188,14 @@ def test_R_CNN(file_path, verbose = True, visualize = True):
     print("License plate guess: " + license_plate_guess)
 
 
-#test_R_CNN()
-print(grid_search_param("./datasets/samples/license_plates_zoomed_sample",
-                        [50, 100, 500, 1000, 5000],
-                        [0.8],
-                        [100],
-                        [0.15, 0.5],
-                        verbose = True,
-                        visualize = False))
+test_R_CNN("./datasets/samples/license_plates_with_slight_context_sample/KLG1CA2555.png",
+           3750, 0.8, 100, 0.15)
+#results_ = grid_search_param("./datasets/samples/license_plates_with_slight_context_sample",
+#                             [3250, 3500, 3750],
+#                             [0.8],
+#                             [100],
+#                             [0.15],
+#                             verbose = True,
+#                             visualize = False,
+#                             save_to_file = True)
+#print(results_to_score(results_))

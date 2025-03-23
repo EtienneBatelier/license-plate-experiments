@@ -208,5 +208,4 @@ def test_selective_search():
     print("Creating visual")
     vt.plot_two_images(PIL_image, vt.draw_bboxes(PIL_image, bboxes))
 
-
 #test_selective_search()

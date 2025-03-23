@@ -4,6 +4,8 @@ datasets/general_characters_dataset
 datasets/license_plate_characters_dataset
 datasets/license_plates_with_slight_context
 datasets/license_plates_zoomed
+datasets/font_generated_dataset
+result_metrics/
 
 
 

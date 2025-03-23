@@ -63,13 +63,12 @@ def create_CNN():
     print('Shape X: ', X_tensor.shape)
     print('Shape Y: ', Y_tensor.shape)
     lp_characters_ds = TensorDataset(X_tensor, Y_tensor)
-    lp_characters_train_ds, lp_characters_test_ds = random_split(lp_characters_ds, [48000, 8535])
+    lp_characters_train_ds, lp_characters_test_ds = random_split(lp_characters_ds, [83000, 9086])
     lp_characters_dm = SimpleDataModule(lp_characters_train_ds,
                                         lp_characters_test_ds,
                                         validation = 0.2,
                                         batch_size = 128,
                                         num_workers = rec_num_workers())
-    print(Y_tensor.min(), Y_tensor.max())
 
 
     ### Check the shape of typical batches in the data loader.
@@ -100,7 +99,7 @@ def create_CNN():
 
     ### Train the model and save it
 
-    max_epochs = 6
+    max_epochs = 10
     lp_characters_trainer = Trainer(deterministic = False,
                                     max_epochs = max_epochs,
                                     logger = lp_characters_logger,

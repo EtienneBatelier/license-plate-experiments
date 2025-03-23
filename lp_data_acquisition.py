@@ -8,7 +8,7 @@ import os
 
 # This file contains code to generate and save pytorch
 # tensors out of data we aim to use to train in network in CNN.py
-# We merge two data sets here.
+# We merge three data sets here.
 
 
 # The classes in the classification model we aim to train
@@ -27,7 +27,7 @@ image_height = 40
 X_tensor = torch.empty(0, 1, image_height, image_width)
 Y_tensor = torch.empty(0, dtype = torch.int64)
 
-# We begin with the first dataset
+# First dataset
 print("Loading first dataset")
 for i in range(len(characters)):
     path = "./datasets/license_plate_characters_dataset/" + characters[i]
@@ -35,20 +35,20 @@ for i in range(len(characters)):
     for file in os.listdir(path):
         # path and file_path are strings containing filepaths navigating through the dataset
         file_path = path + "/" + os.fsdecode(file)
-        # We use PIL to open a .jpg file, resize it, and torchvision.transforms to turn it into a torch tensor
+        # PIL opens an image, resizes it, and torchvision.transforms turns it into a torch tensor
         PIL_image = Image.open(file_path)
         PIL_image = PIL_image.resize((image_width, image_height))
         img_tensor = transforms.PILToTensor()(PIL_image)
-        # We store all the images into a big tensor X_tensor
+        # Store all the images into a big tensor X_tensor
         X_tensor = torch.cat((X_tensor, img_tensor.unsqueeze(0)), dim=0)
-        # We keep track of the target in a tensor Y_tensor
+        # Keep track of the target in a tensor Y_tensor
         Y_tensor = torch.cat((Y_tensor, torch.tensor([i], dtype = torch.int64)))
 
 # Sanity check regarding the shape
 print(X_tensor.shape) #prints "torch.Size([35500, 1, 40, 30])": 35500 images, 1 grayscale channel, 30x40 pixels
 print(Y_tensor.shape) #prints "torch.Size([35500])"
 
-# We continue with the second dataset
+# Second dataset
 print("Loading second dataset")
 for i in range(len(characters)):
     path = "./datasets/general_characters_dataset/" + characters[i]
@@ -56,18 +56,39 @@ for i in range(len(characters)):
     for file in os.listdir(path):
         # path and file_path are strings containing filepaths navigating through the dataset
         file_path = path + "/" + os.fsdecode(file)
-        # We use PIL to open a .jpg file, resize it, and torchvision.transforms to turn it into a torch tensor
+        # PIL opens an image, resizes it, and torchvision.transforms turns it into a torch tensor
         PIL_image = Image.open(file_path)
         PIL_image = PIL_image.resize((image_width, image_height))
         img_tensor = transforms.PILToTensor()(PIL_image)
-        # We store all the images into a big tensor X_tensor
+        # Store all the images into a big tensor X_tensor
         X_tensor = torch.cat((X_tensor, img_tensor.unsqueeze(0)), dim=0)
-        # We keep track of the target in a tensor Y_tensor
+        # Keep track of the target in a tensor Y_tensor
         Y_tensor = torch.cat((Y_tensor, torch.tensor([i], dtype = torch.int64)))
 
 # Sanity check regarding the shape
-print(X_tensor.shape) #prints "torch.Size([56535, 1, 40, 30])": 35500 images, 1 grayscale channel, 30x40 pixels
+print(X_tensor.shape) #prints "torch.Size([56535, 1, 40, 30])": 56535 images, 1 grayscale channel, 30x40 pixels
 print(Y_tensor.shape) #prints "torch.Size([56535])"
+
+# Third dataset
+print("Loading third dataset")
+for i in range(len(characters)):
+    path = "./datasets/font_generated_dataset/" + characters[i]
+    print("loading character " + characters[i])
+    for file in os.listdir(path):
+        # path and file_path are strings containing filepaths navigating through the dataset
+        file_path = path + "/" + os.fsdecode(file)
+        # PIL opens an image, resizes it, and torchvision.transforms turns it into a torch tensor
+        PIL_image = Image.open(file_path).convert("L")
+        PIL_image = PIL_image.resize((image_width, image_height))
+        img_tensor = transforms.PILToTensor()(PIL_image)
+        # Store all the images into a big tensor X_tensor
+        X_tensor = torch.cat((X_tensor, img_tensor.unsqueeze(0)), dim=0)
+        # Keep track of the target in a tensor Y_tensor
+        Y_tensor = torch.cat((Y_tensor, torch.tensor([i], dtype = torch.int64)))
+
+# Sanity check regarding the shape
+print(X_tensor.shape) #prints "torch.Size([92086, 1, 40, 30])":  92086 images, 1 grayscale channel, 30x40 pixels
+print(Y_tensor.shape) #prints "torch.Size([92086])"
 
 # Save the tensors
 torch.save(X_tensor, "./pytorch_files/X_tensor.pt")
